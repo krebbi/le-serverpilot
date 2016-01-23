@@ -17,7 +17,7 @@ echo -e ""
 echo -e " ###############################################################" 
 echo -e " ##   THIS WILL ADD HTTPS TO A CUSTOM VHOST FOR SERVERPILOT   ##"
 echo -e " ##                                                           ##"
-echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${GREEN}                    ##"
+echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${GREEN}       ##"
 echo -e " ##                                                           ##"
 echo -e " ###############################################################" 
 echo -e "${NC}"
@@ -27,9 +27,9 @@ read DFRUN
 if [ $DFRUN == "y" ]; then
 	echo "What is your current app name?"
 	read MYAPP
-	echo "What is the domain name you want to use?"
-    echo " - the one you issued your ssl cert for"
-	read MYDOMAIN
+	#echo "What is the domain name you want to use?"
+    #echo " - the one you issued your ssl cert for"
+	#read MYDOMAIN
     echo "Do you want to add 6 Month Policy Strict-Transport-Security (y/n)?"
     echo " - helps prevent protocol downgrade attacks"
     read DFSTSA1
@@ -37,7 +37,7 @@ if [ $DFRUN == "y" ]; then
 # Check whether a cert has been issued
 
     #Parse Dir structure for APP
-    MYDOMAIN_DIR="${BASEDIR}/certs/${MYDOMAIN}"
+    MYDOMAIN_DIR="${BASEDIR}/certs/${MYAPP}"
 
     # Lets check if the app exists
     if [ ! -d "$MYDOMAIN_DIR" ]; then
@@ -68,11 +68,42 @@ if [ $DFRUN == "y" ]; then
         # START WITH NGINX-SP
         cd
         cd /etc/nginx-sp/vhosts.d/
+
+        # Let's get all Domains from the APP
+
+        DOMAINS=()
+        FOUND=0
+        while IFS='' read -r line || [[ -n "$line" ]]; do
+            if [ "$FOUND" == 1 ]
+                then
+                if [[ "$line" == *";"* ]]
+                    then
+                        FOUND=0
+                    else
+                        FOUNDDOMAIN="${line#"${line%%[![:space:]]*}"}"
+                        FOUNDDOMAIN="${FOUNDDOMAIN%"${FOUNDDOMAIN##*[![:space:]]}"}"
+                        DOMAINS=("${DOMAINS[@]}" "$FOUNDDOMAIN")
+                fi
+            fi
+            if [[ "$line" == *"server_name"* ]]
+                then
+                    FOUND=1
+            fi
+
+        done < /etc/nginx-sp/vhosts.d/$MYAPP.conf
         
-        # We have to create/overwrite any custom files to ensure no errors popup
-        touch $MYAPP.custom.conf
+        # All Domains are now in the Array "DOMAINS"
+
+        # We have to copy the default config to have a config with all domain entries so we don't have to create them again
+        cp $MYAPP.conf $MYAPP.custom.conf
+
+        # We need to rename the original conf-file so it doesn't get parsed bei nginx
+        mv $MYAPP.conf $MYAPP.conf.orig
         
-        TMP_HEADERADD="add_header X-XSS-Protection '1; mode=block';"
+        #this seems to be wrong TMP_HEADERADD="add_header X-XSS-Protection '1; mode=block';"
+
+
+        # Let's create a new beginning to the config file
 
         echo -e "
 
@@ -85,32 +116,32 @@ if [ $DFRUN == "y" ]; then
 
 # EXTRA SECURITY HEADERS
 add_header X-Content-Type-Options nosniff;
-$TMP_HEADERADD
+add_header X-XSS-Protection \"1; mode=block\";
 
-server 
-{
-    listen       80;
-    listen       [::]:80;
-    server_name \$server_name;
-    
-    root   /srv/users/serverpilot/apps/$MYAPP/public;
-    
-    access_log  /srv/users/serverpilot/log/$MYAPP/${MYAPP}_nginx.access.log  main;
-    error_log  /srv/users/serverpilot/log/$MYAPP/${MYAPP}_nginx.error.log;
-    
-    proxy_set_header    Host  \$host;
-    proxy_set_header    X-Real-IP         \$remote_addr;
-    proxy_set_header    X-Forwarded-For   \$proxy_add_x_forwarded_for;
-    
-    include /etc/nginx-sp/vhosts.d/$MYAPP.d/*.nonssl_conf;
-    include /etc/nginx-sp/vhosts.d/$MYAPP.d/*.conf;
-}
+$(cat $MYAPP.custom.conf)" > $MYAPP.custom.conf
+
+# now we're adding the new SSL part to the end of the copied conf
+
+echo -e "
 
 server 
 {
     listen   443 ssl http2;
-    server_name \$server_name;
-    
+    server_name
+    " >> $MYAPP.custom.conf
+
+# now we iterate through the available DOMAINS and add them
+
+for i in "${DOMAINS[@]}"
+do
+   echo -e "$i
+   ">> $MYAPP.custom.conf
+done
+
+# Now the remaining stuff we need
+
+echo -e "
+    ;
     root   /srv/users/serverpilot/apps/$MYAPP/public;
     
     ssl on;
@@ -135,7 +166,7 @@ server
     include /etc/nginx-sp/vhosts.d/$MYAPP.d/*.nonssl_conf;
     include /etc/nginx-sp/vhosts.d/$MYAPP.d/*.conf;
 }
-" > $MYAPP.custom.conf
+" >> $MYAPP.custom.conf
 
         # NOW LETS DO APACHE
         cd

@@ -47,32 +47,59 @@ GREEN='\033[0;32m'
                     echo -e "${RED} ERROR: APP NOT FOUND${NC} - Check your spelling and try again";
                     exit;
                 else
-                    echo -e "${GREEN}Which domain name do wish to use for this cert?${NC}"
-                    read MYDOMAIN
+                    #echo -e "${GREEN}Which domain name do wish to use for this cert?${NC}"
+                    #read MYDOMAIN
                     
-                    if [[ -z "$MYDOMAIN" ]]; then
-                        echo -e "${RED} ERROR: No Domain Entered${NC}";
-                        exit;
-                    else
+                    #if [[ -z "$MYDOMAIN" ]]; then
+                    #    echo -e "${RED} ERROR: No Domain Entered${NC}";
+                    #    exit;
+                    #else
                         # Check if the Domain Exists
-                         if [[ $(wget http://${MYDOMAIN}/ -O-) ]] 2>/dev/null
-                          then echo " + Domain Valid"
-                          else echo -e "${RED} ERROR: Invalid Domain${NC}";
-                          exit;
-                         fi
+                    #     if [[ $(wget http://${MYDOMAIN}/ -O-) ]] 2>/dev/null
+                    #      then echo " + Domain Valid"
+                    #      else echo -e "${RED} ERROR: Invalid Domain${NC}";
+                    #      exit;
+                    #     fi
                     
+                        DOMAINS=()
+                        FOUND=0
+                        while IFS='' read -r line || [[ -n "$line" ]]; do
+                            if [ "$FOUND" == 1 ]
+                                then
+                                if [[ "$line" == *";"* ]]
+                                    then
+                                        FOUND=0
+                                    else
+                                        FOUNDDOMAIN="${line#"${line%%[![:space:]]*}"}"
+                                        FOUNDDOMAIN="${FOUNDDOMAIN%"${FOUNDDOMAIN##*[![:space:]]}"}"
+                                        DOMAINS=("${DOMAINS[@]}" "$FOUNDDOMAIN")
+                                fi
+                            fi
+                            if [[ "$line" == *"server_name"* ]]
+                                then
+                                    FOUND=1
+                            fi
+
+                        done < /etc/nginx-sp/vhosts.d/$MYAPP.conf
+                        
+                        # All Domains are now in the Array "DOMAINS"
+
                         # Create TMP CONFIG FILE
                         echo -e "WELLKNOWN='/srv/users/serverpilot/apps/${MYAPP}/public/.well-known/acme-challenge'" > config.sh
                         echo -e "WELLKNOWN2='/srv/users/serverpilot/apps/${MYAPP}/public/.well-known'" >> config.sh
                         echo -e "CONTACT_EMAIL='${MYEMAIL}'" >> config.sh
                         # Create Domain text
-                        echo -e "${MYDOMAIN}" > domains.txt
-                        bash acme.sh -c -d $MYDOMAIN
+                        echo -e "${DOMAINS[@]}" > domains.txt
+                        
+                        read -n1 -r -p "Press any key to continue..." key
+
+                        #bash acme.sh -c -d $MYAPP
+                        bash acme.sh -c -a $MYAPP
                         
                         #Remove tmp files
                         rm domains.txt
                         rm config.sh
-                    fi
+                    #fi
                     
                 fi
             fi

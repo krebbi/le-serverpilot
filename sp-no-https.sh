@@ -38,6 +38,8 @@ if [ $DFRUN == "y" ]; then
         cd /etc/nginx-sp/vhosts.d/
         # We have to create/overwrite any custom files to ensure no errors popup
         rm -f $MYAPP.custom.conf
+        # Mve the original config back in place
+        mv $MYAPP.conf.orig $MYAPP.conf
 
         # NOW LETS DO APACHE
         cd /etc/apache-sp/vhosts.d/

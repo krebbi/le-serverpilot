@@ -10,7 +10,7 @@ echo -e ""
 echo -e " ###############################################################" 
 echo -e " ##     THIS WILL REMOVE THE CUSTOM VHOST FOR SERVERPILOT     ##"
 echo -e " ##                                                           ##"
-echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${RED}                    ##"
+echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${RED}         ##"
 echo -e " ##                                                           ##"
 echo -e " ###############################################################" 
 echo -e "${NC}"
@@ -38,12 +38,14 @@ if [ $DFRUN == "y" ]; then
         cd /etc/nginx-sp/vhosts.d/
         # We have to create/overwrite any custom files to ensure no errors popup
         rm -f $MYAPP.custom.conf
-        # Mve the original config back in place
+        # Move the original config back in place
         mv $MYAPP.conf.orig $MYAPP.conf
 
         # NOW LETS DO APACHE
         cd /etc/apache-sp/vhosts.d/
         rm -f $MYAPP.custom.conf
+        # Move the original config back in place
+        mv $MYAPP.conf.orig $MYAPP.conf
 
         
             #ALL DONE, Lets restart both services

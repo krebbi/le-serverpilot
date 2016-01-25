@@ -91,9 +91,6 @@ GREEN='\033[0;32m'
                         # Create Domain text
                         echo -e "${DOMAINS[@]}" > domains.txt
                         
-                        read -n1 -r -p "Press any key to continue..." key
-
-                        #bash acme.sh -c -d $MYAPP
                         bash acme.sh -c -a $MYAPP
                         
                         #Remove tmp files

@@ -290,10 +290,10 @@ signed_request() {
 
 sign_domain() {
   domain="${1}"
-  if [[! -e "${APP}"]]; then
-    APP="${1}"
-  fi
   altnames="${*}"
+  if [ -z "$APP" ]; then
+    APP=$domain
+  fi
   
    # Create well-known dir if it doesnt exist
   if [[ ! -e "${WELLKNOWN}" ]]; then
@@ -665,7 +665,8 @@ while getopts ":hcer:da:xf:p:" option; do
       if [[ -z "${APP:-}" ]]; then
         APP="${OPTARG}"
       else
-        APP="${PARAM_DOMAIN} ${OPTARG}"
+        echo "Parameter Missing"
+        exit 1
        fi
       ;;
     x)

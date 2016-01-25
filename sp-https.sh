@@ -97,6 +97,9 @@ if [ $DFRUN == "y" ]; then
 
         # We need to rename the original conf-file so it isn't used by nginx
         mv $MYAPP.conf $MYAPP.conf.orig
+
+        #Let's inject a 301-redirect from port 80 to 443
+        sed -i 's/\[\:\:\]\:80\;/\[\:\:\]\:80\;return 301 https\:\/\/\$host\$request_uri\;/g' $MYAPP.custom.conf
         
         # Let's create a new beginning to the config file
 

@@ -111,10 +111,6 @@ if [ $DFRUN == "y" ]; then
 # https://github.com/dfinnema/le-serverpilot
 ###############################################################################
 
-# EXTRA SECURITY HEADERS
-add_header X-Content-Type-Options nosniff;
-add_header X-XSS-Protection \"1; mode=block\";
-
 $(cat $MYAPP.custom.conf)" > $MYAPP.custom.conf
 
 # now we're adding the new SSL part to the end of the copied conf
@@ -148,6 +144,9 @@ echo -e "
     ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
     ssl_session_cache shared:SSL:50m;
     
+    # EXTRA SECURITY HEADERS
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection \"1; mode=block\;\";
     ${STS}
     
     access_log  /srv/users/serverpilot/log/$MYAPP/${MYAPP}_nginx.access.log  main;

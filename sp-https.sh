@@ -146,7 +146,7 @@ echo -e "
     
     # EXTRA SECURITY HEADERS
     add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection \"1; mode=block\;\";
+    add_header X-XSS-Protection \"1; mode=block;\";
     ${STS}
     
     access_log  /srv/users/serverpilot/log/$MYAPP/${MYAPP}_nginx.access.log  main;

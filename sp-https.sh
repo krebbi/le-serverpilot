@@ -1,10 +1,11 @@
+#!/usr/bin/env bash
 # HTTPS add into Serverpilot
 
 RED='\033[0;31m'
 NC='\033[0m' # No Color    
 GREEN='\033[0;32m'
 STS=""
-
+MYAPP="$1"
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # directory for config, private key and certificates
@@ -17,22 +18,15 @@ echo -e ""
 echo -e " ###############################################################" 
 echo -e " ##   THIS WILL ADD HTTPS TO A CUSTOM VHOST FOR SERVERPILOT   ##"
 echo -e " ##                                                           ##"
-echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${GREEN}       ##"
+echo -e " ##             ${NC}** USE AT YOUR OWN RISK **${GREEN}                    ##"
 echo -e " ##                                                           ##"
 echo -e " ###############################################################" 
 echo -e "${NC}"
 
-echo "Do you want to add a custom conf file for HTTPS (y/n)?"
-read DFRUN
-if [ $DFRUN == "y" ]; then
+if [ "$MYAPP" == '' ]; then
 	echo "What is your current app name?"
 	read MYAPP
-	#echo "What is the domain name you want to use?"
-    #echo " - the one you issued your ssl cert for"
-	#read MYDOMAIN
-    echo "Do you want to add 6 Month Policy Strict-Transport-Security (y/n)?"
-    echo " - helps prevent protocol downgrade attacks"
-    read DFSTSA1
+fi
     
 # Check whether a cert has been issued
 
@@ -55,10 +49,8 @@ if [ $DFRUN == "y" ]; then
             exit;
         else
 
-        if [ $DFSTSA1 == "y" ]; then
             echo " + Adding Strict-Transport-Security 6 Month Policy"
             STS="add_header Strict-Transport-Security max-age=15768000;"
-        fi
 
         #== NGINX CUSTOM CONFIG ==
         #!/bin/sh
@@ -225,20 +217,11 @@ done
 </VirtualHost>" >> $MYAPP.custom.conf
         
             #ALL DONE, Lets restart both services
-            echo -e "Do you want to ${RED}RESTART${NC} nginx and apache services (y/n)?"
-            read DFRUNR
-            if [ $DFRUNR == "y" ]; then
-                sudo service nginx-sp restart
-                sudo service apache-sp restart
-                echo -e "${GREEN}All Done! SSL is now enabled for Lets Encrypt${NC}"
-                exit;
-            else
-                echo "No services restarted, SSL config has been setup."
-                echo "both your nginx and apache service needs to be restarted to be enabled"
-            fi
-        
+            sudo service nginx-sp restart
+            sudo service apache-sp restart
+            echo -e "${GREEN}All Done! SSL is now enabled for Lets Encrypt${NC}"
+            exit;
         fi
-
 fi
 
 else

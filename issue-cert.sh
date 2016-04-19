@@ -4,6 +4,7 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color    
 GREEN='\033[0;32m'
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
     echo -e ""
@@ -14,22 +15,9 @@ GREEN='\033[0;32m'
     echo ""
     
     # Run   
-    
-    echo -e "${GREEN}Do you want to issue/renew a SSL certificate (y/n)?${NC}"
+
     echo " existing certificates are renewed if older than 14 days"
-    read DFRUN
-    if [ $DFRUN == "y" ]; then
-        
-        echo -e "${GREEN}What is your email address you want to use for Lets Encrypt${NC}"
-        read MYEMAIL
-                
-        # Check if string is empty using -z. For more 'help test'    
-        if [[ -z "$MYEMAIL" ]]; then
-            echo -e "${RED} ERROR: NO EMAIL ENTERED${NC}"
-            exit 1
-        fi
-    
-    
+
         echo -e "${GREEN}What is your current app name?${NC}"
         read MYAPP
                 
@@ -40,26 +28,27 @@ GREEN='\033[0;32m'
             else
                  #Parse Dir structure for APP
                 MYAPP_DIR='/srv/users/serverpilot/apps/'$MYAPP'/public/'
+                MYAPPCERT=$SCRIPTDIR'/certs/'$MYAPP'/fullchain.pem'
                 
                  # Lets check if the app exists
                 if [ ! -d "$MYAPP_DIR" ]; then
-                #if [  -d "$MYAPP_DIR" ]; then
                     echo -e "${RED} ERROR: APP NOT FOUND${NC} - Check your spelling and try again";
                     exit;
                 else
-                    #echo -e "${GREEN}Which domain name do wish to use for this cert?${NC}"
-                    #read MYDOMAIN
-                    
-                    #if [[ -z "$MYDOMAIN" ]]; then
-                    #    echo -e "${RED} ERROR: No Domain Entered${NC}";
-                    #    exit;
-                    #else
-                        # Check if the Domain Exists
-                    #     if [[ $(wget http://${MYDOMAIN}/ -O-) ]] 2>/dev/null
-                    #      then echo " + Domain Valid"
-                    #      else echo -e "${RED} ERROR: Invalid Domain${NC}";
-                    #      exit;
-                    #     fi
+
+                    echo -e "${GREEN}What is your email address you want to use for Lets Encrypt${NC}"
+                    read MYEMAIL
+
+                    # Check if string is empty using -z. For more 'help test'
+                    if [[ -z "$MYEMAIL" ]]; then
+                        echo -e "${RED} ERROR: NO EMAIL ENTERED${NC}"
+                        exit 1
+                    fi
+
+                    if [ -f "$MYAPPCERT" ]
+                        then
+                        bash sp-no-https.sh $MYAPP
+                    fi
                     
                         DOMAINS=()
                         FOUND=0
@@ -96,14 +85,10 @@ GREEN='\033[0;32m'
                         #Remove tmp files
                         rm domains.txt
                         rm config.sh
-                    #fi
+
+                        #Activate HTTPS 
+                        bash sp-https.sh $MYAPP
+
                     
                 fi
             fi
-        
-    else
-    echo "Nothing issued!"
-	exit;
-    fi
-    
-    

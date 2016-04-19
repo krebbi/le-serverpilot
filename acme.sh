@@ -291,6 +291,9 @@ signed_request() {
 sign_domain() {
   domain="${1}"
   altnames="${*}"
+  if [ -z "$APP" ]; then
+    APP=$domain
+  fi
   
    # Create well-known dir if it doesnt exist
   if [[ ! -e "${WELLKNOWN}" ]]; then
@@ -318,17 +321,17 @@ sign_domain() {
   timestamp="$(date +%s)"
 
   # If there is no existing certificate directory => make it
-  if [[ ! -e "${BASEDIR}/certs/${domain}" ]]; then
-    echo " + Creating directory ${BASEDIR}/certs/${domain} ..."
-    mkdir -p "${BASEDIR}/certs/${domain}"
+  if [[ ! -e "${BASEDIR}/certs/${APP}" ]]; then
+    echo " + Creating directory ${BASEDIR}/certs/${APP} ..."
+    mkdir -p "${BASEDIR}/certs/${APP}"
   fi
 
   privkey="privkey.pem"
   # generate a new private key if we need or want one
-  if [[ ! -f "${BASEDIR}/certs/${domain}/privkey.pem" ]] || [[ "${PRIVATE_KEY_RENEW}" = "yes" ]]; then
+  if [[ ! -f "${BASEDIR}/certs/${APP}/privkey.pem" ]] || [[ "${PRIVATE_KEY_RENEW}" = "yes" ]]; then
     echo " + Generating private key..."
     privkey="privkey-${timestamp}.pem"
-    _openssl genrsa -out "${BASEDIR}/certs/${domain}/privkey-${timestamp}.pem" "${KEYSIZE}"
+    _openssl genrsa -out "${BASEDIR}/certs/${APP}/privkey-${timestamp}.pem" "${KEYSIZE}"
   fi
 
   # Generate signing request config and the actual signing request
@@ -338,7 +341,7 @@ sign_domain() {
   done
   SAN="${SAN%%, }"
   echo " + Generating signing request..."
-  openssl req -new -sha256 -key "${BASEDIR}/certs/${domain}/${privkey}" -out "${BASEDIR}/certs/${domain}/cert-${timestamp}.csr" -subj "/CN=${domain}/" -reqexts SAN -config <(cat "${OPENSSL_CNF}" <(printf "[SAN]\nsubjectAltName=%s" "${SAN}"))
+  openssl req -new -sha256 -key "${BASEDIR}/certs/${APP}/${privkey}" -out "${BASEDIR}/certs/${APP}/cert-${timestamp}.csr" -subj "/CN=${domain}/" -reqexts SAN -config <(cat "${OPENSSL_CNF}" <(printf "[SAN]\nsubjectAltName=%s" "${SAN}"))
 
   # Request and respond to challenges
   for altname in $altnames; do
@@ -399,9 +402,9 @@ sign_domain() {
 
   # Finally request certificate from the acme-server and store it in cert-${timestamp}.pem and link from cert.pem
   echo " + Requesting certificate..."
-  csr64="$(openssl req -in "${BASEDIR}/certs/${domain}/cert-${timestamp}.csr" -outform DER | urlbase64)"
+  csr64="$(openssl req -in "${BASEDIR}/certs/${APP}/cert-${timestamp}.csr" -outform DER | urlbase64)"
   crt64="$(signed_request "${CA_NEW_CERT}" '{"resource": "new-cert", "csr": "'"${csr64}"'"}' | openssl base64 -e)"
-  crt_path="${BASEDIR}/certs/${domain}/cert-${timestamp}.pem"
+  crt_path="${BASEDIR}/certs/${APP}/cert-${timestamp}.pem"
   printf -- '-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----\n' "${crt64}" > "${crt_path}"
   # try to load the certificate to detect corruption
   echo " + Checking certificate..."
@@ -409,26 +412,26 @@ sign_domain() {
 
   # Create fullchain.pem
   echo " + Creating fullchain.pem..."
-  cat "${crt_path}" > "${BASEDIR}/certs/${domain}/fullchain-${timestamp}.pem"
-  _request get "$(openssl x509 -in "${BASEDIR}/certs/${domain}/cert-${timestamp}.pem" -noout -text | grep 'CA Issuers - URI:' | cut -d':' -f2-)" > "${BASEDIR}/certs/${domain}/chain-${timestamp}.pem"
-  if ! grep "BEGIN CERTIFICATE" "${BASEDIR}/certs/${domain}/chain-${timestamp}.pem"; then
-    openssl x509 -in "${BASEDIR}/certs/${domain}/chain-${timestamp}.pem" -inform DER -out "${BASEDIR}/certs/${domain}/chain-${timestamp}.pem" -outform PEM
+  cat "${crt_path}" > "${BASEDIR}/certs/${APP}/fullchain-${timestamp}.pem"
+  _request get "$(openssl x509 -in "${BASEDIR}/certs/${APP}/cert-${timestamp}.pem" -noout -text | grep 'CA Issuers - URI:' | cut -d':' -f2-)" > "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem"
+  if ! grep "BEGIN CERTIFICATE" "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem"; then
+    openssl x509 -in "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" -inform DER -out "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" -outform PEM
   fi
-  ln -sf "chain-${timestamp}.pem" "${BASEDIR}/certs/${domain}/chain.pem"
-  cat "${BASEDIR}/certs/${domain}/chain-${timestamp}.pem" >> "${BASEDIR}/certs/${domain}/fullchain-${timestamp}.pem"
-  ln -sf "fullchain-${timestamp}.pem" "${BASEDIR}/certs/${domain}/fullchain.pem"
+  ln -sf "chain-${timestamp}.pem" "${BASEDIR}/certs/${APP}/chain.pem"
+  cat "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" >> "${BASEDIR}/certs/${APP}/fullchain-${timestamp}.pem"
+  ln -sf "fullchain-${timestamp}.pem" "${BASEDIR}/certs/${APP}/fullchain.pem"
 
   # Update remaining symlinks
   if [ ! "${privkey}" = "privkey.pem" ]; then
-    ln -sf "privkey-${timestamp}.pem" "${BASEDIR}/certs/${domain}/privkey.pem"
+    ln -sf "privkey-${timestamp}.pem" "${BASEDIR}/certs/${APP}/privkey.pem"
   fi
 
-  ln -sf "cert-${timestamp}.csr" "${BASEDIR}/certs/${domain}/cert.csr"
-  ln -sf "cert-${timestamp}.pem" "${BASEDIR}/certs/${domain}/cert.pem"
+  ln -sf "cert-${timestamp}.csr" "${BASEDIR}/certs/${APP}/cert.csr"
+  ln -sf "cert-${timestamp}.pem" "${BASEDIR}/certs/${APP}/cert.pem"
 
   # Wait for hook script to clean the challenge and to deploy cert if used
   if [[ -n "${HOOK}" ]]; then
-      ${HOOK} "deploy_cert" "${domain}" "${BASEDIR}/certs/${domain}/privkey.pem" "${BASEDIR}/certs/${domain}/cert.pem" "${BASEDIR}/certs/${domain}/fullchain.pem"
+      ${HOOK} "deploy_cert" "${APP}" "${BASEDIR}/certs/${APP}/privkey.pem" "${BASEDIR}/certs/${APP}/cert.pem" "${BASEDIR}/certs/${APP}/fullchain.pem"
   fi
 
   unset challenge_token
@@ -469,12 +472,12 @@ command_sign_domains() {
   <"${DOMAINS_TXT}" sed 's/^[[:space:]]*//g;s/[[:space:]]*$//g' | grep -vE '^(#|$)' | while read -r line; do
     domain="$(printf '%s\n' "${line}" | cut -d' ' -f1)"
     morenames="$(printf '%s\n' "${line}" | cut -s -d' ' -f2-)"
-    cert="${BASEDIR}/certs/${domain}/cert.pem"
+    cert="${BASEDIR}/certs/${APP}/cert.pem"
 
     force_renew="${PARAM_FORCE:-no}"
 
     if [[ -z "${morenames}" ]];then
-      echo " + Processing ${domain}"
+      echo " + Processing ${APP}"
     else
       echo " + Processing ${domain} with SAN: ${morenames}"
     fi
@@ -589,7 +592,8 @@ for arg; do
     --help)    args="${args}-h ";;
     --cron)    args="${args}-c ";;
     --domain)  args="${args}-d ";;
-    --force )  args="${args}-x ";;
+    --app)     args="${args}-a ";;
+    --force)   args="${args}-x ";;
     --revoke)  args="${args}-r ";;
     --privkey) args="${args}-p ";;
     --config)  args="${args}-f ";;
@@ -627,7 +631,7 @@ check_parameters() {
   fi
 }
 
-while getopts ":hcer:d:xf:p:" option; do
+while getopts ":hcer:da:xf:p:" option; do
   case "${option}" in
     h)
       command_help
@@ -652,6 +656,17 @@ while getopts ":hcer:d:xf:p:" option; do
         PARAM_DOMAIN="${OPTARG}"
       else
         PARAM_DOMAIN="${PARAM_DOMAIN} ${OPTARG}"
+       fi
+      ;;
+    a)
+      # PARAM_Usage: --app (-a) appname
+      # PARAM_Description: Uses Serverpilot App-Name as reference
+      check_parameters "${OPTARG:-}"
+      if [[ -z "${APP:-}" ]]; then
+        APP="${OPTARG}"
+      else
+        echo "Parameter Missing"
+        exit 1
        fi
       ;;
     x)

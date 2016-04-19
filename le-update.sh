@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # HTTPS add into Serverpilot
 
 NC='\033[0m' # No Color    

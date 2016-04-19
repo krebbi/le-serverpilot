@@ -1,6 +1,11 @@
 # le-serverpilot
 SH script to install / manage Lets Encrypt for Server Pilot free users
 
+there are some differences to dfinnema/le-serverpilot version.
+This version gets all domains from the nginx config and issues / renews the cert. 
+no need to type in all the domains manually.
+
+
 #** PLEASE USE AT YOUR OWN RISK **
 
 ##Requirements
@@ -15,6 +20,8 @@ SH script to install / manage Lets Encrypt for Server Pilot free users
 git clone https://github.com/dfinnema/le-serverpilot.git
 cd le-serverpilot
 chmod +x df.sh
+chmod +x sp-https.sh
+chmod +x sp-no-https.sh
 ```
 
 ##How to Use
@@ -26,9 +33,7 @@ cd le-serverpilot
 
 ## Misc
 
-Please note this is just a simple set of scripts quickly written. Feel free to fork it.
-
-It uses the Shell script from (https://github.com/lukas2511/letsencrypt.sh) to do all the Lets Encrypt stuff. 
+Please note this is a fork of dfinnema/le-serverpilot
 
 ### FAQ
 

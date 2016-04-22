@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# https://github.com/krebbi/le-serverpilot
+# forked from https://github.com/dfinnema/le-serverpilot
 # Lets Encrypt sh
 RED='\033[0;31m'
 NC='\033[0m' # No Color    
@@ -21,9 +22,9 @@ until [ "$selection" = "0" ]; do
     echo -e " ###############################################################" 
     echo -e " ##   THIS SCRIPT WILL MANAGE LETS ENCRYPT FOR SERVERPILOT    ##"
     echo -e " ##                                                           ##"
-    echo -e " ##                ${NC}** USE AT YOUR OWN RISK **${GREEN}                 ##"
+    echo -e " ##                ${RED}** USE AT YOUR OWN RISK **${GREEN}                 ##"
     echo -e " ##                                                           ##"
-    echo -e " ##                     Version: alpha 1.3                    ##"
+    echo -e " ##                     Version: beta 2.0                     ##"
     echo -e " ###############################################################" 
     echo -e "${NC}"
     echo ""

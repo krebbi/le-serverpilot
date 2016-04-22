@@ -1,8 +1,9 @@
 # le-serverpilot
 SH script to install / manage Lets Encrypt for Server Pilot free users
 
-there are some differences to dfinnema/le-serverpilot version.
-This version gets all domains from the nginx config and issues / renews the cert. 
+differences to dfinnema/le-serverpilot:
+
+This fork takes all domains from the serverpilot config and issues / renews the certs accordingly. 
 no need to type in all the domains manually.
 
 

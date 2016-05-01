@@ -5,3 +5,4 @@ domains.txt
 ssl-pro-nginx.sh
 ssl-pro-apache.sh
 certs/
+test.sh

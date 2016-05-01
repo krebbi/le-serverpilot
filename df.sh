@@ -34,7 +34,8 @@ until [ "$selection" = "0" ]; do
     echo "  1) Issue / Renew a CERT" 
     echo "  2) Revoke a CERT" 
     echo "  3) Delete Lets Encrypt Account Key"
-    echo ""    
+    echo "  4) Manage CRON Jobs"
+    echo ""
     echo "Server Pilot Options"
     echo "  8) Activate SSL (issue a cert first)"
     echo "  9) Deactivate SSL"
@@ -52,6 +53,7 @@ until [ "$selection" = "0" ]; do
         #2 ) bash revoke-cert.sh; press_enter ;;
         2 ) echo "Coming Soon"; press_enter ;;
         3 ) bash le-account.sh; press_enter ;;
+        4 ) bash sp-cron.sh; press_enter ;;
         8 ) bash sp-https.sh; press_enter ;;
         9 ) bash sp-no-https.sh; press_enter ;;
         u ) bash le-update.sh; press_enter ;;

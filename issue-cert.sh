@@ -5,7 +5,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color    
 GREEN='\033[0;32m'
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
+MYAPP="$1"
 
     echo -e ""
     echo -e " ###############################################################" 
@@ -18,8 +18,10 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
     echo " existing certificates are renewed if older than 14 days"
 
-    echo -e "${GREEN}What is your current app name?${NC}"
-    read MYAPP
+    if [ "$MYAPP" == '' ]; then
+        echo -e "${GREEN}What is your current app name?${NC}"
+        read MYAPP
+    fi
 
     # Check if string is empty using -z.
     if [[ -z "$MYAPP" ]]; then

@@ -19,8 +19,24 @@ MYAPP="$1"
     echo " existing certificates are renewed if older than 14 days"
 
     if [ "$MYAPP" == '' ]; then
-        echo -e "${GREEN}What is your current app name?${NC}"
-        read MYAPP
+        MYAPPCOUNT=0
+        for ENTRY in "/srv/users"/*
+        do
+            APPS=$ENTRY"/apps"
+            echo -e ""
+            echo -e "${ENTRY#/srv/users/}"
+            echo -e ""
+            for APP in $APPS/*
+            do
+                ((MYAPPCOUNT++))
+                echo $MYAPPCOUNT") " ${APP#$APPS/}
+                MYAPPS[$MYAPPCOUNT]=${APP#$APPS/}
+            done
+        done
+        echo -e "${GREEN}Please choose App${NC}"
+        read MYAPPNUMBER
+        echo ""
+        MYAPP=${MYAPPS[$MYAPPNUMBER]}
     fi
 
     # Check if string is empty using -z.

@@ -5,6 +5,7 @@
 RED='\033[0;31m'
 NC='\033[0m' # No Color    
 GREEN='\033[0;32m'
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 function press_enter
@@ -49,14 +50,14 @@ until [ "$selection" = "0" ]; do
     read selection
     echo ""
     case $selection in
-        1 ) bash issue-cert.sh; press_enter ;;
-        #2 ) bash revoke-cert.sh; press_enter ;;
+        1 ) bash $SCRIPTDIR/issue-cert.sh; press_enter ;;
+        #2 ) bash $SCRIPTDIR/revoke-cert.sh; press_enter ;;
         2 ) echo "Coming Soon"; press_enter ;;
-        3 ) bash le-account.sh; press_enter ;;
-        4 ) bash sp-cron.sh; press_enter ;;
-        8 ) bash sp-https.sh; press_enter ;;
-        9 ) bash sp-no-https.sh; press_enter ;;
-        u ) bash le-update.sh; press_enter ;;
+        3 ) bash $SCRIPTDIR/le-account.sh; press_enter ;;
+        4 ) bash $SCRIPTDIR/sp-cron.sh; press_enter ;;
+        8 ) bash $SCRIPTDIR/sp-https.sh; press_enter ;;
+        9 ) bash $SCRIPTDIR/sp-no-https.sh; press_enter ;;
+        u ) bash $SCRIPTDIR/le-update.sh; press_enter ;;
         q ) exit ;;
         0 ) exit ;;
         * ) echo "Please choose an option"; press_enter

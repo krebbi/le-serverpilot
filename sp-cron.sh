@@ -23,7 +23,25 @@ echo -e "${NC}"
 
 if [ "$MYAPP" == '' ]; then
 	echo "For what App do you want to create an automatic cert renewal?"
-	read MYAPP
+	echo ""
+	MYAPPCOUNT=0
+        for ENTRY in "/srv/users"/*
+        do
+            APPS=$ENTRY"/apps"
+            echo -e ""
+            echo -e "${ENTRY#/srv/users/}"
+            echo -e ""
+            for APP in $APPS/*
+            do
+                ((MYAPPCOUNT++))
+                echo $MYAPPCOUNT") " ${APP#$APPS/}
+                MYAPPS[$MYAPPCOUNT]=${APP#$APPS/}
+            done
+        done
+        echo -e "${GREEN}Please choose App${NC}"
+        read MYAPPNUMBER
+        echo ""
+        MYAPP=${MYAPPS[$MYAPPNUMBER]}
 fi
 
 # Check if string is empty using -z.

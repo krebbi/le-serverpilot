@@ -24,8 +24,24 @@ echo -e " ###############################################################"
 echo -e "${NC}"
 
 if [ "$MYAPP" == '' ]; then
-	echo "What is your current app name?"
-	read MYAPP
+	 MYAPPCOUNT=0
+        for ENTRY in "/srv/users"/*
+        do
+            APPS=$ENTRY"/apps"
+            echo -e ""
+            echo -e "${ENTRY#/srv/users/}"
+            echo -e ""
+            for APP in $APPS/*
+            do
+                ((MYAPPCOUNT++))
+                echo $MYAPPCOUNT") " ${APP#$APPS/}
+                MYAPPS[$MYAPPCOUNT]=${APP#$APPS/}
+            done
+        done
+        echo -e "${GREEN}Please choose App${NC}"
+        read MYAPPNUMBER
+        echo ""
+        MYAPP=${MYAPPS[$MYAPPNUMBER]}
 fi
     
 # Check whether a cert has been issued

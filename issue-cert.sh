@@ -106,12 +106,14 @@ MYAPP="$1"
                     then
                         FOUND=0
                     else
-                        FOUNDDOMAIN="${line#"${line%%[![:space:]]*}"}"
-                        FOUNDDOMAIN="${FOUNDDOMAIN%"${FOUNDDOMAIN##*[![:space:]]}"}"
-                        DOMAINS=("${DOMAINS[@]}" "$FOUNDDOMAIN")
+                        if [[ "$line" != *"server-${MYAPP}"* ]]; then
+                            FOUNDDOMAIN="${line#"${line%%[![:space:]]*}"}"
+                            FOUNDDOMAIN="${FOUNDDOMAIN%"${FOUNDDOMAIN##*[![:space:]]}"}"
+                            DOMAINS=("${DOMAINS[@]}" "$FOUNDDOMAIN")
+                        fi
                     fi
                 fi
-                if [[ "$line" == *"server-${MYAPP}"* ]]; then
+                if [[ "$line" == *"server_name"* ]]; then
                     FOUND=1
                 fi
 

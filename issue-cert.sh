@@ -126,7 +126,7 @@ MYAPP="$1"
             # Create Domain text
             echo -e "${DOMAINS[@]}" > domains.txt
 
-            bash acme.sh -c -a $MYAPP
+            bash letsencrypt.sh -c -a $MYAPP
 
             #Remove tmp files
             rm domains.txt

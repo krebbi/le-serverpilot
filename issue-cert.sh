@@ -111,7 +111,7 @@ MYAPP="$1"
                         DOMAINS=("${DOMAINS[@]}" "$FOUNDDOMAIN")
                     fi
                 fi
-                if [[ "$line" == *"server_name"* ]]; then
+                if [[ "$line" == *"server-${MYAPP}"* ]]; then
                     FOUND=1
                 fi
 
@@ -126,7 +126,8 @@ MYAPP="$1"
             # Create Domain text
             echo -e "${DOMAINS[@]}" > domains.txt
 
-            bash letsencrypt.sh -c -a $MYAPP
+            #bash letsencrypt.sh -c --app $MYAPP
+            bash acme.sh -c -a $MYAPP
 
             #Remove tmp files
             rm domains.txt

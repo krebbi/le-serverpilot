@@ -32,6 +32,8 @@ cd le-serverpilot
 ./df.sh
 ```
 
+Don't change the Domains in your Serverpilot settings while the SSL cert is activated for the App!
+
 ## Misc
 
 Please note this is a fork of dfinnema/le-serverpilot

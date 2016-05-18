@@ -7,11 +7,11 @@ This fork takes all domains from the serverpilot config and issues / renews the 
 no need to type in all the domains manually.
 
 
-#** PLEASE USE AT YOUR OWN RISK **
+##PLEASE USE AT YOUR OWN RISK 
 
 ##Requirements
 
- Ubuntu 14.04 
+ Ubuntu 14.04 LTS / 16.04 LTS
  Server running with Serverpilot
  Root User Access
 
@@ -19,10 +19,7 @@ no need to type in all the domains manually.
 
 ```
 git clone https://github.com/dfinnema/le-serverpilot.git
-cd le-serverpilot
-chmod +x df.sh
-chmod +x sp-https.sh
-chmod +x sp-no-https.sh
+
 ```
 
 ##How to Use
@@ -32,7 +29,7 @@ cd le-serverpilot
 ./df.sh
 ```
 
-Don't change the Domains in your Serverpilot settings while the SSL cert is activated for the App!
+# Don't change the Domains in your Serverpilot settings while the SSL cert is activated for the App!
 
 ## Misc
 

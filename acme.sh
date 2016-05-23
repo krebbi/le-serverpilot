@@ -349,11 +349,10 @@ sign_domain() {
     echo " + Requesting challenge for ${altname}..."
     response="$(signed_request "${CA_NEW_AUTHZ}" '{"resource": "new-authz", "identifier": {"type": "dns", "value": "'"${altname}"'"}}')"
 
-    challenges="$(printf '%s\n' "${response}" | get_json_array challenges)"
-    repl=$'\n''{' # fix syntax highlighting in Vim
-    challenge="$(printf "%s" "${challenges//\{/${repl}}" | grep 'http-01')"
-    challenge_token="$(printf '%s' "${challenge}" | get_json_string_value token | sed 's/[^A-Za-z0-9_\-]/_/g')"
-    challenge_uri="$(printf '%s' "${challenge}" | get_json_string_value uri)"
+    chtoken=$(echo $response| ./jq '.challenges[] | select(.type=="http-01") | .token')
+    challenge_token=${chtoken:1:-1}
+    churi=$(echo $response| ./jq '.challenges[] | select(.type=="http-01") | .uri')
+    challenge_uri=${churi:1:-1}
 
     if [[ -z "${challenge_token}" ]] || [[ -z "${challenge_uri}" ]]; then
       echo "  Error: Can't retrieve challenges (${response})" >&2

@@ -18,7 +18,7 @@ no need to type in all the domains manually.
 ##How to Install
 
 ```
-git clone https://github.com/dfinnema/le-serverpilot.git
+git clone https://github.com/krebbi/le-serverpilot.git
 
 ```
 

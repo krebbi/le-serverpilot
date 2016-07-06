@@ -23,7 +23,7 @@ echo -e "${NC}"
 
 if [ "$MYAPP" == '' ]; then
 	echo "For what App do you want to create an automatic cert renewal?"
-	echo ""
+	echo "(Green Apps do have an active CRON)"
 	MYAPPCOUNT=0
         for ENTRY in "/srv/users"/*
         do
@@ -34,7 +34,13 @@ if [ "$MYAPP" == '' ]; then
             for APP in $APPS/*
             do
                 ((MYAPPCOUNT++))
-                echo $MYAPPCOUNT") " ${APP#$APPS/}
+                CHECKCRON='/etc/cron.weekly/le-'${APP#$APPS/}
+                if [ -f "$CHECKCRON" ];
+                    then
+                    echo -e $MYAPPCOUNT") " "${GREEN}"${APP#$APPS/}"${NC}"
+                    else
+                    echo -e $MYAPPCOUNT") " ${APP#$APPS/}
+                fi
                 MYAPPS[$MYAPPCOUNT]=${APP#$APPS/}
             done
         done

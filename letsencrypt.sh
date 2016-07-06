@@ -190,7 +190,16 @@ init_system() {
   fi
 
   if [[ "${CHALLENGETYPE}" = "http-01" && ! -d "${WELLKNOWN}" ]]; then
-      _exiterr "WELLKNOWN directory doesn't exist, please create ${WELLKNOWN} and set appropriate permissions."
+  mkdir -p $WELLKNOWN
+    if [[ -e "${WELLKNOWN}" ]]; then
+        echo " + Challenge directory created..."
+        #echo "    - CHMOD 777 (${WELLKNOWN})"
+        chmod 777 $WELLKNOWN
+        #echo "    - CHMOD 777 (${WELLKNOWN2})"
+        chmod 777 $WELLKNOWN2
+    else
+         _exiterr " ERROR: Challenge directory cannot be created, please creat it manually (${WELLKNOWN}) and set appropriate permissions."
+    fi
   fi
 }
 
@@ -489,9 +498,9 @@ sign_csr() {
 # Create certificate for domain(s)
 sign_domain() {
   if [[ -z "${PARAM_APP}" ]]; then
-    domain=${PARAM_APP}
-    else
     domain="${1}"
+    else
+    domain=${PARAM_APP}
   fi
   altnames="${*}"
   timestamp="$(date +%s)"

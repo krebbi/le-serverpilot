@@ -50,6 +50,7 @@ fi
         # Remove the custom files
  
         # START WITH NGINX-SP
+        echo -e "proccessing nginx"
         cd /etc/nginx-sp/vhosts.d/
         # We have to create/overwrite any custom files to ensure no errors popup
         rm -f $MYAPP.custom.conf
@@ -57,6 +58,7 @@ fi
         mv $MYAPP.conf.orig $MYAPP.conf
 
         # NOW LETS DO APACHE
+        echo -e "proccessing Apache"
         cd /etc/apache-sp/vhosts.d/
         rm -f $MYAPP.custom.conf
         # Move the original config back in place

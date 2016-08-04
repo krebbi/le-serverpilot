@@ -110,6 +110,7 @@ email=
             else
             echo -e "${GREEN}cronjob not found. creating.${NC}"
             echo -e "${SCRIPTDIR}/issue-cert.sh ${MYAPP}" > $MYAPPCRON
+            chmod +x $MYAPPCRON
         fi
 
     fi

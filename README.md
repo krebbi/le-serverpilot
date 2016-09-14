@@ -51,7 +51,7 @@ A: in the le-serverpilot directory under a file called 'private_key.pem'
 
 Q: Does this use the official Lets Encrypt client
 
-A: No it uses a very usefull script from (https://github.com/lukas2511/letsencrypt.sh) to do the heavy lifting
+A: No it uses a very usefull script from (https://github.com/lukas2511/dehydrated) to do the heavy lifting
 
 
 

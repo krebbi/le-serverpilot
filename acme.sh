@@ -20,11 +20,12 @@ BASEDIR="${SCRIPTDIR}"
 
 # Default config values
 
-    # SET LE for testing only
-    #CA="https://acme-staging.api.letsencrypt.org/directory"
-    
-CA="https://acme-v01.api.letsencrypt.org/directory"
-LICENSE="https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf"
+# SET LE for testing only
+#api="https://acme-staging.api.letsencrypt.org"
+
+api='https://acme-v01.api.letsencrypt.org'
+CA="${api}/directory"
+LICENSE=$(curl -s -I "$api/terms" |grep Location |cut -f 2 -d \ |tr -d '\r\n')
 HOOK=
 RENEW_DAYS="14"
 PRIVATE_KEY=

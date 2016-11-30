@@ -61,7 +61,8 @@ load_config() {
 
   # Default values
   CA="https://acme-v01.api.letsencrypt.org/directory"
-  LICENSE="https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf"
+  api='https://acme-v01.api.letsencrypt.org'
+  LICENSE=$(curl -s -I "$api/terms" |grep Location |cut -f 2 -d \ |tr -d '\r\n')
   CHALLENGETYPE="http-01"
   CONFIG_D=
   HOOK=

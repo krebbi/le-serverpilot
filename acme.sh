@@ -146,7 +146,13 @@ init_system() {
   pubExponent64="$(printf "%06x" "$(openssl rsa -in "${PRIVATE_KEY}" -noout -text | grep publicExponent | head -1 | cut -d' ' -f2)" | hex2bin | urlbase64)"
   pubMod64="$(printf '%s' "$(openssl rsa -in "${PRIVATE_KEY}" -noout -modulus | cut -d'=' -f2)" | hex2bin | urlbase64)"
 
-  thumbprint="$(printf '%s' '{"e":"'"${pubExponent64}"'","kty":"RSA","n":"'"${pubMod64}"'"}' | openssl sha -sha256 -binary | urlbase64)"
+  if openssl help 2>&1 | grep -c sha256; then
+    thumbprint="$(printf '%s' '{"e":"'"${pubExponent64}"'","kty":"RSA","n":"'"${pubMod64}"'"}' | openssl sha256 -binary | urlbase64)"
+  else
+    thumbprint="$(printf '%s' '{"e":"'"${pubExponent64}"'","kty":"RSA","n":"'"${pubMod64}"'"}' | openssl sha -sha256 -binary | urlbase64)"
+  fi
+
+
 
 #DEBUG
 #register="1"

@@ -221,6 +221,12 @@ get_json_array() {
   grep -Eo '"'"${1}"'":[^\[]*\[[^]]*]'
 }
 
+# Create (identifiable) temporary files
+_mktemp() {
+  # shellcheck disable=SC2068
+  mktemp ${@:-} "${TMPDIR:-/tmp}/dehydrated-XXXXXX"
+}
+
 _request() {
   tempcont="$(mktemp)"
 
@@ -419,9 +425,15 @@ sign_domain() {
   # Create fullchain.pem
   echo " + Creating fullchain.pem..."
   cat "${crt_path}" > "${BASEDIR}/certs/${APP}/fullchain-${timestamp}.pem"
-  _request get "$(openssl x509 -in "${BASEDIR}/certs/${APP}/cert-${timestamp}.pem" -noout -text | grep 'CA Issuers - URI:' | cut -d':' -f2-)" > "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem"
-  if ! grep "BEGIN CERTIFICATE" "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem"; then
-    openssl x509 -in "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" -inform DER -out "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" -outform PEM
+
+  tmpchain="$(_mktemp)"
+ _request get "$(openssl x509 -in "${BASEDIR}/certs/${APP}/cert-${timestamp}.pem" -noout -text | grep 'CA Issuers - URI:' | cut -d':' -f2-)" > "${tmpchain}"
+  if grep -q "BEGIN CERTIFICATE" "${tmpchain}"; then
+    mv "${tmpchain}" "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem"
+  else
+    openssl x509 -in "${tmpchain}" -inform DER -out "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" -outform PEM
+    rm "${tmpchain}"
+
   fi
   ln -sf "chain-${timestamp}.pem" "${BASEDIR}/certs/${APP}/chain.pem"
   cat "${BASEDIR}/certs/${APP}/chain-${timestamp}.pem" >> "${BASEDIR}/certs/${APP}/fullchain-${timestamp}.pem"
@@ -448,7 +460,6 @@ sign_domain() {
 # Usage: --cron (-c)
 # Description: Sign/renew non-existant/changed/expiring certificates.
 command_sign_domains() {
-
 
   if [[ -n "${PARAM_DOMAIN:-}" ]]; then
     # we are using a temporary domains.txt file so we don't need to duplicate any code

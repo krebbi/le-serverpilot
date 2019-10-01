@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#trap "set +x; sleep 5; set -x" DEBUG
 
 # Uses the script from https://github.com/lukas2511/letsencrypt.sh
 # A Few Changes for SERVERPILOT FREE USERS
@@ -25,7 +26,8 @@ BASEDIR="${SCRIPTDIR}"
 
 api='https://acme-v01.api.letsencrypt.org'
 CA="${api}/directory"
-LICENSE=$(curl -s -I "$api/terms" |grep Location |cut -f 2 -d \ |tr -d '\r\n')
+LICENSE=$(curl -s -I "$api/terms" |grep -i Location |cut -f 2 -d \ |tr -d '\r\n')
+#LICENSE="LE-SA-v1.2-November-15-2017"
 HOOK=
 RENEW_DAYS="14"
 PRIVATE_KEY=
@@ -283,7 +285,7 @@ signed_request() {
   payload64="$(printf '%s' "${2}" | urlbase64)"
 
   # Retrieve nonce from acme-server
-  nonce="$(_request head "${CA}" | grep Replay-Nonce: | awk -F ': ' '{print $2}' | anti_newline)"
+  nonce="$(_request head "${CA}" | grep -i Replay-Nonce: | awk -F ': ' '{print $2}' | anti_newline)"
 
   # Build header with just our public key and algorithm information
   header='{"alg": "RS256", "jwk": {"e": "'"${pubExponent64}"'", "kty": "RSA", "n": "'"${pubMod64}"'"}}'

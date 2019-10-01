@@ -137,7 +137,7 @@ MYAPP="$1"
             rm config.sh
 
             #Activate HTTPS
-            bash sp-https.sh $MYAPP
+            bash $SCRIPTDIR/sp-https.sh $MYAPP
 
                     
         fi

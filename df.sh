@@ -25,7 +25,7 @@ until [ "$selection" = "0" ]; do
     echo -e " ##                                                           ##"
     echo -e " ##                ${RED}** USE AT YOUR OWN RISK **${GREEN}                 ##"
     echo -e " ##                                                           ##"
-    echo -e " ##                     Version: beta 2.0                     ##"
+    echo -e " ##                     Version: beta 2.1                     ##"
     echo -e " ###############################################################" 
     echo -e "${NC}"
     echo ""
@@ -51,8 +51,7 @@ until [ "$selection" = "0" ]; do
     echo ""
     case $selection in
         1 ) bash $SCRIPTDIR/issue-cert.sh; press_enter ;;
-        #2 ) bash $SCRIPTDIR/revoke-cert.sh; press_enter ;;
-        2 ) echo "Coming Soon"; press_enter ;;
+        2 ) bash $SCRIPTDIR/revoke-cert.sh; press_enter ;;
         3 ) bash $SCRIPTDIR/le-account.sh; press_enter ;;
         4 ) bash $SCRIPTDIR/sp-cron.sh; press_enter ;;
         8 ) bash $SCRIPTDIR/sp-https.sh; press_enter ;;
